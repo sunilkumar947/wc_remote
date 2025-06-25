@@ -284,6 +284,14 @@ class AdminPanel(QMainWindow):
             QMessageBox.information(self, "No Screenshots", "No screenshots found for this user and date range.")
             return
 
+        # Setup progress bar BEFORE starting the loop
+        progress = QProgressDialog("Loading screenshots, please wait...", None, 0, len(screenshot_data), self)
+        progress.setWindowModality(Qt.WindowModality.ApplicationModal)
+        progress.setMinimumDuration(0)
+        progress.setCancelButton(None)
+        progress.show()
+        QApplication.processEvents()
+        
         # Clear table and set it up for displaying images
         self.table.setRowCount(len(screenshot_data))
         self.table.setColumnCount(2)
@@ -320,6 +328,12 @@ class AdminPanel(QMainWindow):
                     self.table.setItem(row_idx, 1, QTableWidgetItem("Invalid Image"))
             else:
                 self.table.setItem(row_idx, 1, QTableWidgetItem("Download failed"))
+
+            # Update progress bar
+            progress.setValue(row_idx + 1)
+            QApplication.processEvents()
+    
+        progress.close()
 
             # if not pixmap.isNull():
             #     label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
